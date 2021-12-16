@@ -31,6 +31,7 @@ namespace NordTaskApi.Repositories
             {
                 throw new InvalidOperationException();
             }
+            context.Notes.Remove(entry);
             await context.SaveChangesAsync();
         }
 
