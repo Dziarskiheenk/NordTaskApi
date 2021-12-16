@@ -1,12 +1,27 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using NordTaskApi.Data;
+using NordTaskApi.Repositories;
+using NordTaskApi.Services;
 using System.Security.Claims;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddDbContext<NotesContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("NordTaskApi"));
+});
+
+builder.Services.AddTransient<INotesRepository, NotesRepository>();
+builder.Services.AddTransient<INotesService, NotesService>();
+
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
