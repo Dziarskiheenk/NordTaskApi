@@ -40,10 +40,12 @@ namespace NordTaskApi.Repositories
                 .Where(ns => ns.UserEmail == userId)
                 .Select(ns => ns.NoteId)
                 .ToListAsync();
-            return await context.Notes
+            var notes = await context.Notes
                 .Where(n => n.OwnedBy == userId || sharedNotes.Contains(n.Id))
                 .Include(n => n.SharedWith)
                 .ToListAsync();
+            notes.ForEach(n => n.CreatedAt = DateTime.SpecifyKind(n.CreatedAt, DateTimeKind.Utc));
+            return notes;
         }
 
         public async Task UpdateNote(Note note, string userId)
