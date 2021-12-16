@@ -28,8 +28,11 @@ namespace NordTaskApi.Services
             return note;
         }
 
-        public Task DeleteNote(Guid id, string userId) =>
-            notesRepository.DeleteNote(id, userId);
+        public async Task DeleteNote(Guid id, string userId) =>
+            await notesRepository.DeleteNote(id, userId);
+
+        public async Task DeleteNoteShare(Guid noteId, string userId) =>
+            await notesRepository.DeleteNoteShare(noteId, userId);
 
         public async Task<IEnumerable<Note>> GetNotes(string userId)
         {
@@ -42,7 +45,13 @@ namespace NordTaskApi.Services
             return notes;
         }
 
-        public async Task UpdateNote(Note note, string userId) =>
+        public async Task UpdateNote(Note note, string userId)
+        {
+            if (note.SharedWithEmails is not null)
+            {
+                note.SharedWith = note.SharedWithEmails.Select(s => new NoteShare { NoteId = note.Id, UserEmail = s }).ToList();
+            }
             await notesRepository.UpdateNote(note, userId);
+        }
     }
 }

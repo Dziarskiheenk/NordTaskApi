@@ -35,6 +35,17 @@ namespace NordTaskApi.Repositories
             await context.SaveChangesAsync();
         }
 
+        public async Task DeleteNoteShare(Guid noteId, string userId)
+        {
+            var entry = await context.NoteShares.FirstOrDefaultAsync(ns => ns.NoteId == noteId && ns.UserEmail == userId);
+            if (entry is null)
+            {
+                throw new KeyNotFoundException();
+            }
+            context.Remove(entry);
+            await context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<Note>> GetNotes(string userId)
         {
             var sharedNotes = await context.NoteShares
@@ -60,7 +71,21 @@ namespace NordTaskApi.Repositories
             {
                 throw new InvalidOperationException();
             }
+
+            var oldShares = await context.NoteShares
+                .Where(ns => ns.NoteId == note.Id)
+                .ToListAsync();
+            var newShares = new List<NoteShare>();
+            if (note.SharedWith is not null)
+            {
+                newShares = note.SharedWith.Where(sw => !oldShares.Any(os => os.UserEmail == sw.UserEmail)).ToList();
+                oldShares = oldShares.Where(os => !note.SharedWith.Any(sw => sw.UserEmail == os.UserEmail)).ToList();
+            }
+            context.NoteShares.RemoveRange(oldShares);
+            context.NoteShares.AddRange(newShares);
+            
             context.Entry(note).State = EntityState.Modified;
+
             await context.SaveChangesAsync();
         }
     }

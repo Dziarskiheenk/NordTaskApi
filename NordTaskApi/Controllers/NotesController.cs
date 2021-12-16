@@ -78,5 +78,19 @@ namespace NordTaskApi.Controllers
                 return Unauthorized();
             }
         }
+
+        [HttpDelete("SharedNotes/{id}")]
+        public async Task<IActionResult> DeleteShare(Guid id)
+        {
+            try
+            {
+                await notesService.DeleteNoteShare(id, UserId);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
     }
 }

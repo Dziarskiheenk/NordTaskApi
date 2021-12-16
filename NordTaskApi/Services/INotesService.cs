@@ -8,5 +8,6 @@ namespace NordTaskApi.Services
         Task UpdateNote(Note note, string userId);
         Task<Note> CreateNote(Note note, string userId);
         Task DeleteNote(Guid id, string userId);
+        Task DeleteNoteShare(Guid noteId, string userId);
     }
 }
