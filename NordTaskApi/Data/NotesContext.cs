@@ -18,6 +18,7 @@ namespace NordTaskApi.Data
             modelBuilder.Entity<Note>().HasKey(n => n.Id);
             modelBuilder.Entity<Note>().Property(n => n.CreatedAt).IsRequired();
             modelBuilder.Entity<Note>().Property(n => n.OwnedBy).IsRequired();
+            modelBuilder.Entity<Note>().Property(n => n.Content).IsRequired();
             modelBuilder.Entity<Note>().Ignore(n => n.SharedWithEmails);
 
             modelBuilder.Entity<NoteShare>().HasKey(ns => new { ns.NoteId, ns.UserEmail });
