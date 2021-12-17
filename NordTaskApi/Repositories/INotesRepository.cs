@@ -9,5 +9,6 @@ namespace NordTaskApi.Repositories
         Task<Note> CreateNote(Note note);
         Task DeleteNote(Guid id, string userId);
         Task DeleteNoteShare(Guid noteId, string userId);
+        Task<string?> GetProtectedContent(Guid id, string password, string userId);
     }
 }

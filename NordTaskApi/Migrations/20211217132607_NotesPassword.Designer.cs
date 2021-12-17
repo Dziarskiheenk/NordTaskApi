@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NordTaskApi.Data;
 
@@ -11,9 +12,10 @@ using NordTaskApi.Data;
 namespace NordTaskApi.Migrations
 {
     [DbContext(typeof(NotesContext))]
-    partial class NotesContextModelSnapshot : ModelSnapshot
+    [Migration("20211217132607_NotesPassword")]
+    partial class NotesPassword
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,7 +51,7 @@ namespace NordTaskApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Notes", (string)null);
+                    b.ToTable("Notes");
                 });
 
             modelBuilder.Entity("NordTaskApi.Models.NoteShare", b =>
@@ -62,7 +64,7 @@ namespace NordTaskApi.Migrations
 
                     b.HasKey("NoteId", "UserEmail");
 
-                    b.ToTable("NoteShares", (string)null);
+                    b.ToTable("NoteShares");
                 });
 
             modelBuilder.Entity("NordTaskApi.Models.NoteShare", b =>

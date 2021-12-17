@@ -1,5 +1,6 @@
 ﻿using NordTaskApi.Models;
 using NordTaskApi.Repositories;
+using System.Text;
 
 namespace NordTaskApi.Services
 {
@@ -17,6 +18,7 @@ namespace NordTaskApi.Services
             note.Id = Guid.Empty;
             note.OwnedBy = userId;
             note.CreatedAt = DateTime.UtcNow;
+            note.Password = note.GetUserPassword();
 
             if (note.SharedWithEmails is not null)
             {
@@ -41,6 +43,10 @@ namespace NordTaskApi.Services
             {
                 if (n.SharedWith is not null)
                     n.SharedWithEmails = n.SharedWith.Select(sw => sw.UserEmail!).ToList();
+                
+                // TODO think about string encryption when saved with password instead of returning empty content
+                if (n.IsPasswordProtected)
+                    n.Content = string.Empty;
             });
             return notes;
         }
@@ -51,7 +57,17 @@ namespace NordTaskApi.Services
             {
                 note.SharedWith = note.SharedWithEmails.Select(s => new NoteShare { NoteId = note.Id, UserEmail = s }).ToList();
             }
+
+            note.Password = note.GetUserPassword();
+
             await notesRepository.UpdateNote(note, userId);
+        }
+
+        public async Task<string?> GetProtectedContent(Guid noteId, string base64password, string userId)
+        {
+            byte[] data = Convert.FromBase64String(base64password);
+            var password = Encoding.UTF8.GetString(data);
+            return await notesRepository.GetProtectedContent(noteId, password, userId);
         }
     }
 }

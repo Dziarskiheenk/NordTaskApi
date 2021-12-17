@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NordTaskApi.Exceptions;
 using NordTaskApi.Models;
 using NordTaskApi.Services;
 
@@ -31,6 +32,29 @@ namespace NordTaskApi.Controllers
             return Ok(await notesService.GetNotes(UserId!));
         }
 
+        [HttpGet("{id}/Content")]
+        public async Task<IActionResult> GetProtectedContent([FromRoute] Guid id, [FromQuery] string password)
+        {
+            if (id == Guid.Empty || string.IsNullOrEmpty(password))
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var content = await notesService.GetProtectedContent(id, password, UserId);
+                return Ok(content);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (UnauthorizedException)
+            {
+                return Unauthorized();
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] Note note)
         {
@@ -55,7 +79,7 @@ namespace NordTaskApi.Controllers
             {
                 return NotFound();
             }
-            catch (InvalidOperationException)
+            catch (UnauthorizedException)
             {
                 return Unauthorized();
             }
@@ -73,7 +97,7 @@ namespace NordTaskApi.Controllers
             {
                 return NotFound();
             }
-            catch (InvalidOperationException)
+            catch (UnauthorizedException)
             {
                 return Unauthorized();
             }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NordTaskApi.Data;
+using NordTaskApi.Exceptions;
 using NordTaskApi.Models;
 
 namespace NordTaskApi.Repositories
@@ -29,7 +30,7 @@ namespace NordTaskApi.Repositories
             }
             if (entry.OwnedBy != userId)
             {
-                throw new InvalidOperationException();
+                throw new UnauthorizedException();
             }
             context.Notes.Remove(entry);
             await context.SaveChangesAsync();
@@ -63,14 +64,14 @@ namespace NordTaskApi.Repositories
 
         public async Task UpdateNote(Note note, string userId)
         {
-            var entry = context.Entry(note).Entity;
+            var entry = await context.Notes.FindAsync(note.Id);
             if (entry is null)
             {
                 throw new KeyNotFoundException();
             }
-            if (entry.OwnedBy != userId)
+            if (entry.OwnedBy != userId || entry.Password != note.Password)
             {
-                throw new InvalidOperationException();
+                throw new UnauthorizedException();
             }
 
             var oldShares = await context.NoteShares
@@ -88,6 +89,21 @@ namespace NordTaskApi.Repositories
             context.Entry(note).State = EntityState.Modified;
 
             await context.SaveChangesAsync();
+        }
+
+        public async Task<string?> GetProtectedContent(Guid id, string password, string userId)
+        {
+            var entry = await context.Notes.FindAsync(id);
+            if (entry is null)
+            {
+                throw new KeyNotFoundException();
+            }
+            if (entry.OwnedBy != userId || entry.Password != password)
+            {
+                throw new UnauthorizedException();
+            }
+
+            return entry.Content;
         }
     }
 }
