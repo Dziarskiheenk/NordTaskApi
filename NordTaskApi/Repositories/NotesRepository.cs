@@ -74,19 +74,18 @@ namespace NordTaskApi.Repositories
                 throw new UnauthorizedException();
             }
 
-            var oldShares = await context.NoteShares
-                .Where(ns => ns.NoteId == note.Id)
-                .ToListAsync();
-            var newShares = new List<NoteShare>();
+            entry.Title = note.Title;
+            entry.Content = note.Content;
+            entry.Password = note.Password;
+
+            entry.SharedWith = await context.NoteShares.Where(ns => ns.NoteId == note.Id).ToListAsync();
+            entry.SharedWith.RemoveAll(entryShared => note.SharedWith is null || !note.SharedWith.Any(sw => sw.UserEmail == entryShared.UserEmail));
             if (note.SharedWith is not null)
             {
-                newShares = note.SharedWith.Where(sw => !oldShares.Any(os => os.UserEmail == sw.UserEmail)).ToList();
-                oldShares = oldShares.Where(os => !note.SharedWith.Any(sw => sw.UserEmail == os.UserEmail)).ToList();
+                entry.SharedWith.AddRange(note.SharedWith.Where(sw => !entry.SharedWith.Any(entryShare => entryShare.UserEmail == sw.UserEmail)));
             }
-            context.NoteShares.RemoveRange(oldShares);
-            context.NoteShares.AddRange(newShares);
 
-            context.Entry(note).State = EntityState.Modified;
+            context.Entry(entry).State = EntityState.Modified;
 
             await context.SaveChangesAsync();
         }
