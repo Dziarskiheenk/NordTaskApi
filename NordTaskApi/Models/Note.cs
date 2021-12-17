@@ -9,6 +9,7 @@ namespace NordTaskApi.Models
         public string? Title { get; set; }
         public string? Content { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
 
         [JsonIgnore]
         public List<NoteShare>? SharedWith { get; set; }

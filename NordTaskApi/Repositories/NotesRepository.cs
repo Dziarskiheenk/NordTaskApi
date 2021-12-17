@@ -54,6 +54,7 @@ namespace NordTaskApi.Repositories
                 .ToListAsync();
             var notes = await context.Notes
                 .Where(n => n.OwnedBy == userId || sharedNotes.Contains(n.Id))
+                .Where(n => !n.ExpiresAt.HasValue || n.ExpiresAt >= DateTime.UtcNow)
                 .Include(n => n.SharedWith)
                 .ToListAsync();
             notes.ForEach(n => n.CreatedAt = DateTime.SpecifyKind(n.CreatedAt, DateTimeKind.Utc));
@@ -83,7 +84,7 @@ namespace NordTaskApi.Repositories
             }
             context.NoteShares.RemoveRange(oldShares);
             context.NoteShares.AddRange(newShares);
-            
+
             context.Entry(note).State = EntityState.Modified;
 
             await context.SaveChangesAsync();
