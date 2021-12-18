@@ -18,7 +18,7 @@ namespace NordTaskApi.Services
             note.Id = Guid.Empty;
             note.OwnedBy = userId;
             note.CreatedAt = DateTime.UtcNow;
-            note.Password = note.GetUserPassword();
+            note.Password = note.GetDecodedUserPassword();
 
             if (note.SharedWithEmails is not null)
             {
@@ -58,7 +58,7 @@ namespace NordTaskApi.Services
                 note.SharedWith = note.SharedWithEmails.Select(s => new NoteShare { NoteId = note.Id, UserEmail = s }).ToList();
             }
 
-            note.Password = note.GetUserPassword();
+            note.Password = note.GetDecodedUserPassword();
 
             await notesRepository.UpdateNote(note, userId);
         }

@@ -12,6 +12,9 @@ namespace NordTaskApi.Models
         public string? Content { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
+        /// <summary>
+        /// Base64 encoded
+        /// </summary>
         public string? UserPassword { private get; set; }
 
         [JsonIgnore]
@@ -26,7 +29,7 @@ namespace NordTaskApi.Models
             get => !string.IsNullOrEmpty(Password);
         }
 
-        public string? GetUserPassword()
+        public string? GetDecodedUserPassword()
         {
             if (!string.IsNullOrEmpty(UserPassword))
             {
