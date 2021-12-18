@@ -76,7 +76,6 @@ namespace NordTaskApi.Repositories
 
             entry.Title = note.Title;
             entry.Content = note.Content;
-            entry.Password = note.Password;
 
             entry.SharedWith = await context.NoteShares.Where(ns => ns.NoteId == note.Id).ToListAsync();
             entry.SharedWith.RemoveAll(entryShared => note.SharedWith is null || !note.SharedWith.Any(sw => sw.UserEmail == entryShared.UserEmail));
@@ -93,11 +92,12 @@ namespace NordTaskApi.Repositories
         public async Task<string?> GetProtectedContent(Guid id, string password, string userId)
         {
             var entry = await context.Notes.FindAsync(id);
+            var shares = await context.NoteShares.Where(ns => ns.NoteId == id).ToListAsync();
             if (entry is null)
             {
                 throw new KeyNotFoundException();
             }
-            if (entry.OwnedBy != userId || entry.Password != password)
+            if (entry.Password != password || (entry.OwnedBy != userId && !shares.Any(s => s.UserEmail == userId)))
             {
                 throw new UnauthorizedException();
             }
