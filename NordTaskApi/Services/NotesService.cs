@@ -36,9 +36,9 @@ namespace NordTaskApi.Services
         public async Task DeleteNoteShare(Guid noteId, string userId) =>
             await notesRepository.DeleteNoteShare(noteId, userId);
 
-        public async Task<IEnumerable<Note>> GetNotes(string userId)
+        public async Task<IEnumerable<Note>> GetNotes(string userId, CancellationToken cancellationToken)
         {
-            var notes = await notesRepository.GetNotes(userId);
+            var notes = await notesRepository.GetNotes(userId, cancellationToken);
             notes.ToList().ForEach(n =>
             {
                 if (n.SharedWith is not null)

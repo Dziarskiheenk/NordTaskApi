@@ -47,17 +47,17 @@ namespace NordTaskApi.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Note>> GetNotes(string userId)
+        public async Task<IEnumerable<Note>> GetNotes(string userId, CancellationToken cancellationToken)
         {
             var sharedNotes = await context.NoteShares
                 .Where(ns => ns.UserEmail == userId)
                 .Select(ns => ns.NoteId)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
             var notes = await context.Notes
                 .Where(n => n.OwnedBy == userId || sharedNotes.Contains(n.Id))
                 .Where(n => !n.ExpiresAt.HasValue || n.ExpiresAt >= DateTime.UtcNow)
                 .Include(n => n.SharedWith)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
             notes.ForEach(n => n.CreatedAt = DateTime.SpecifyKind(n.CreatedAt, DateTimeKind.Utc));
             return notes;
         }

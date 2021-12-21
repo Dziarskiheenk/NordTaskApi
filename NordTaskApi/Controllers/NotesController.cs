@@ -27,9 +27,9 @@ namespace NordTaskApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            return Ok(await notesService.GetNotes(UserId!));
+            return Ok(await notesService.GetNotes(UserId!, cancellationToken));
         }
 
         [HttpGet("{id}/Content")]
