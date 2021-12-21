@@ -5,6 +5,7 @@ using NordTaskApi.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -100,10 +101,10 @@ namespace NordTaskApi.Tests
                 new Note(){Password = "xxxxx", Content = "Content"},
                 new Note(){Password = "\r\n", Content = "Content"}
             }).AsEnumerable();
-            repoMock.Setup(r => r.GetNotes(It.IsAny<string>())).Returns(Task.FromResult(notes));
+            repoMock.Setup(r => r.GetNotes(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(notes));
 
             var notesService = new NotesService(repoMock.Object);
-            var result = await notesService.GetNotes(string.Empty);
+            var result = await notesService.GetNotes(string.Empty, new CancellationToken());
 
             Assert.DoesNotContain(result, note => !string.IsNullOrEmpty(note.Password) && !string.IsNullOrEmpty(note.Content));
         }
@@ -122,10 +123,10 @@ namespace NordTaskApi.Tests
                     }
                 }
             }).AsEnumerable();
-            repoMock.Setup(r => r.GetNotes(It.IsAny<string>())).Returns(Task.FromResult(notes));
+            repoMock.Setup(r => r.GetNotes(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(notes));
 
             var notesService = new NotesService(repoMock.Object);
-            var result = (await notesService.GetNotes(string.Empty)).First().SharedWithEmails;
+            var result = (await notesService.GetNotes(string.Empty, new CancellationToken())).First().SharedWithEmails;
 
             Assert.NotNull(result);
             Assert.Equal(3, result!.Count);
