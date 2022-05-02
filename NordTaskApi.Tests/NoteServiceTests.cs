@@ -1,4 +1,5 @@
 using Moq;
+using NordTaskApi.Exceptions;
 using NordTaskApi.Models;
 using NordTaskApi.Repositories;
 using NordTaskApi.Services;
@@ -167,6 +168,38 @@ namespace NordTaskApi.Tests
             await notesService.UpdateNote(updatedNote, string.Empty);
 
             Assert.Equal(!string.IsNullOrEmpty(password), updatedNote.IsPasswordProtected);
+        }
+
+        [Fact]
+        public async Task CannotRemoveNotOwnedNote()
+        {
+            var owner = "personA";
+            var requestor = "personB";
+            var noteId = Guid.NewGuid();
+            var note = new Note
+            {
+                OwnedBy = owner,
+                Id = noteId
+            };
+            var repoMock = new Mock<INotesRepository>();
+            repoMock.Setup(r => r.GetNotes(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<Note>() { note }.AsEnumerable()));
+
+            var notesService = new NotesService(repoMock.Object);
+
+            await Assert.ThrowsAsync<UnauthorizedException>(() => notesService.DeleteNote(noteId, requestor));
+        }
+
+        [Fact]
+        public async Task CannotRemoveNotExistingNote()
+        {
+            var repoMock = new Mock<INotesRepository>();
+            repoMock.Setup(r => r.GetNotes(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Enumerable.Empty<Note>()));
+
+            var notesService = new NotesService(repoMock.Object);
+
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => notesService.DeleteNote(Guid.NewGuid(), "personA"));
         }
     }
 }

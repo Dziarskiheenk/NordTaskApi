@@ -21,18 +21,9 @@ namespace NordTaskApi.Repositories
             return note;
         }
 
-        public async Task DeleteNote(Guid id, string userId)
+        public async Task DeleteNote(Guid id)
         {
-            var entry = await context.Notes.FirstOrDefaultAsync(n => n.Id == id);
-            if (entry is null)
-            {
-                throw new KeyNotFoundException();
-            }
-            if (entry.OwnedBy != userId)
-            {
-                throw new UnauthorizedException();
-            }
-            context.Notes.Remove(entry);
+            context.Notes.Remove(context.Notes.First(x => x.Id == id));
             await context.SaveChangesAsync();
         }
 

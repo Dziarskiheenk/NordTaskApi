@@ -1,4 +1,5 @@
-﻿using NordTaskApi.Models;
+﻿using NordTaskApi.Exceptions;
+using NordTaskApi.Models;
 using NordTaskApi.Repositories;
 using System.Text;
 
@@ -30,8 +31,21 @@ namespace NordTaskApi.Services
             return note;
         }
 
-        public async Task DeleteNote(Guid id, string userId) =>
-            await notesRepository.DeleteNote(id, userId);
+        public async Task DeleteNote(Guid id, string userId)
+        {
+            var entry = (await notesRepository
+                .GetNotes(userId, CancellationToken.None))
+                .FirstOrDefault(n=>n.Id==id);
+            if (entry is null)
+            {
+                throw new KeyNotFoundException();
+            }
+            if (entry.OwnedBy != userId)
+            {
+                throw new UnauthorizedException();
+            }
+            await notesRepository.DeleteNote(id);
+        }
 
         public async Task DeleteNoteShare(Guid noteId, string userId) =>
             await notesRepository.DeleteNoteShare(noteId, userId);
