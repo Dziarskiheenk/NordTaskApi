@@ -56,27 +56,8 @@ namespace NordTaskApi.Repositories
 
         public async Task UpdateNote(Note note, string userId)
         {
-            var entry = await context.Notes.FindAsync(note.Id);
-            if (entry is null)
-            {
-                throw new KeyNotFoundException();
-            }
-            if (entry.OwnedBy != userId || entry.Password != note.Password)
-            {
-                throw new UnauthorizedException();
-            }
-
-            entry.Title = note.Title;
-            entry.Content = note.Content;
-
-            entry.SharedWith = await context.NoteShares.Where(ns => ns.NoteId == note.Id).ToListAsync();
-            entry.SharedWith.RemoveAll(entryShared => note.SharedWith is null || !note.SharedWith.Any(sw => sw.UserEmail == entryShared.UserEmail));
-            if (note.SharedWith is not null)
-            {
-                entry.SharedWith.AddRange(note.SharedWith.Where(sw => !entry.SharedWith.Any(entryShare => entryShare.UserEmail == sw.UserEmail)));
-            }
-
-            context.Entry(entry).State = EntityState.Modified;
+            var entry = context.Notes.First(n=>n.Id== note.Id);
+            context.Entry(entry).CurrentValues.SetValues(note);
 
             await context.SaveChangesAsync();
         }
