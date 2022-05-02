@@ -201,5 +201,31 @@ namespace NordTaskApi.Tests
 
             await Assert.ThrowsAsync<KeyNotFoundException>(() => notesService.DeleteNote(Guid.NewGuid(), "personA"));
         }
+
+        [Fact]
+        public async Task CannotDeleteNotExisitingNoteShare()
+        {
+            var noteId = Guid.NewGuid();
+            var shareOwner = "personA";
+            var repoMock = new Mock<INotesRepository>();
+            repoMock.Setup(r => r.GetNoteShares(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(new List<NoteShare>() { new NoteShare { NoteId = noteId, UserEmail = shareOwner } }.AsEnumerable()));
+
+            var notesService = new NotesService(repoMock.Object);
+
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => notesService.DeleteNoteShare(Guid.NewGuid(), shareOwner));
+        }
+
+        [Fact]
+        public async Task CannotDeleteNotOwnedNoteShare()
+        {
+            var repoMock = new Mock<INotesRepository>();
+            repoMock.Setup(r => r.GetNoteShares(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Enumerable.Empty<NoteShare>()));
+
+            var notesService = new NotesService(repoMock.Object);
+
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => notesService.DeleteNoteShare(Guid.NewGuid(), "personA"));
+        }
     }
 }

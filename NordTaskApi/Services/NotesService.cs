@@ -35,7 +35,7 @@ namespace NordTaskApi.Services
         {
             var entry = (await notesRepository
                 .GetNotes(userId, CancellationToken.None))
-                .FirstOrDefault(n=>n.Id==id);
+                .FirstOrDefault(n => n.Id == id);
             if (entry is null)
             {
                 throw new KeyNotFoundException();
@@ -47,8 +47,16 @@ namespace NordTaskApi.Services
             await notesRepository.DeleteNote(id);
         }
 
-        public async Task DeleteNoteShare(Guid noteId, string userId) =>
+        public async Task DeleteNoteShare(Guid noteId, string userId)
+        {
+            var entry = (await notesRepository.GetNoteShares(userId, CancellationToken.None))
+                .FirstOrDefault(ns => ns.NoteId == noteId);
+            if (entry is null)
+            {
+                throw new KeyNotFoundException();
+            }
             await notesRepository.DeleteNoteShare(noteId, userId);
+        }
 
         public async Task<IEnumerable<Note>> GetNotes(string userId, CancellationToken cancellationToken)
         {
@@ -57,7 +65,7 @@ namespace NordTaskApi.Services
             {
                 if (n.SharedWith is not null)
                     n.SharedWithEmails = n.SharedWith.Select(sw => sw.UserEmail!).ToList();
-                
+
                 // TODO think about string encryption when saved with password instead of returning empty content
                 if (n.IsPasswordProtected)
                     n.Content = string.Empty;

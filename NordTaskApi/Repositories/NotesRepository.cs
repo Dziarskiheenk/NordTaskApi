@@ -29,21 +29,14 @@ namespace NordTaskApi.Repositories
 
         public async Task DeleteNoteShare(Guid noteId, string userId)
         {
-            var entry = await context.NoteShares.FirstOrDefaultAsync(ns => ns.NoteId == noteId && ns.UserEmail == userId);
-            if (entry is null)
-            {
-                throw new KeyNotFoundException();
-            }
-            context.Remove(entry);
+            context.Remove(context.NoteShares.First(ns => ns.NoteId == noteId && ns.UserEmail == userId));
             await context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<Note>> GetNotes(string userId, CancellationToken cancellationToken)
         {
-            var sharedNotes = await context.NoteShares
-                .Where(ns => ns.UserEmail == userId)
-                .Select(ns => ns.NoteId)
-                .ToListAsync(cancellationToken);
+            var sharedNotes = (await GetNoteShares(userId, cancellationToken))
+                .Select(ns => ns.NoteId);
             var notes = await context.Notes
                 .Where(n => n.OwnedBy == userId || sharedNotes.Contains(n.Id))
                 .Where(n => !n.ExpiresAt.HasValue || n.ExpiresAt >= DateTime.UtcNow)
@@ -51,6 +44,14 @@ namespace NordTaskApi.Repositories
                 .ToListAsync(cancellationToken);
             notes.ForEach(n => n.CreatedAt = DateTime.SpecifyKind(n.CreatedAt, DateTimeKind.Utc));
             return notes;
+        }
+
+        public async Task<IEnumerable<NoteShare>> GetNoteShares(string userId, CancellationToken cancellationToken)
+        {
+            var sharedNotes = await context.NoteShares
+                .Where(ns => ns.UserEmail == userId)
+                .ToListAsync(cancellationToken);
+            return sharedNotes;
         }
 
         public async Task UpdateNote(Note note, string userId)
