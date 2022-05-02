@@ -88,7 +88,9 @@ namespace NordTaskApi.Services
             {
                 throw new KeyNotFoundException();
             }
-            if (entry.OwnedBy != userId || entry.Password != note.Password)
+            var passwordsEqual = (string.IsNullOrWhiteSpace(note.Password) && string.IsNullOrWhiteSpace(entry.Password)) ||
+                note.Password == entry.Password;
+            if (entry.OwnedBy != userId || !passwordsEqual)
             {
                 throw new UnauthorizedException();
             }
@@ -111,7 +113,18 @@ namespace NordTaskApi.Services
         {
             byte[] data = Convert.FromBase64String(base64password);
             var password = Encoding.UTF8.GetString(data);
-            return await notesRepository.GetProtectedContent(noteId, password, userId);
+            var entry = await notesRepository.GetNote(noteId);
+            var shares = await notesRepository.GetNoteShares(userId, CancellationToken.None);
+            if (entry is null)
+            {
+                throw new KeyNotFoundException();
+            }
+            if (entry.Password != password || (entry.OwnedBy != userId && !shares.Any(s => s.UserEmail == userId)))
+            {
+                throw new UnauthorizedException();
+            }
+
+            return entry.Content;
         }
     }
 }

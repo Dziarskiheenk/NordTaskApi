@@ -38,6 +38,7 @@ namespace NordTaskApi.Repositories
             var sharedNotes = (await GetNoteShares(userId, cancellationToken))
                 .Select(ns => ns.NoteId);
             var notes = await context.Notes
+                .AsNoTracking()
                 .Where(n => n.OwnedBy == userId || sharedNotes.Contains(n.Id))
                 .Where(n => !n.ExpiresAt.HasValue || n.ExpiresAt >= DateTime.UtcNow)
                 .Include(n => n.SharedWith)
@@ -46,9 +47,15 @@ namespace NordTaskApi.Repositories
             return notes;
         }
 
+        public async Task<Note?>GetNote(Guid id)
+        {
+            return await context.Notes.FirstOrDefaultAsync(n=>n.Id == id);
+        }
+
         public async Task<IEnumerable<NoteShare>> GetNoteShares(string userId, CancellationToken cancellationToken)
         {
             var sharedNotes = await context.NoteShares
+                .AsNoTracking()
                 .Where(ns => ns.UserEmail == userId)
                 .ToListAsync(cancellationToken);
             return sharedNotes;
@@ -60,22 +67,6 @@ namespace NordTaskApi.Repositories
             context.Entry(entry).CurrentValues.SetValues(note);
 
             await context.SaveChangesAsync();
-        }
-
-        public async Task<string?> GetProtectedContent(Guid id, string password, string userId)
-        {
-            var entry = await context.Notes.FindAsync(id);
-            var shares = await context.NoteShares.Where(ns => ns.NoteId == id).ToListAsync();
-            if (entry is null)
-            {
-                throw new KeyNotFoundException();
-            }
-            if (entry.Password != password || (entry.OwnedBy != userId && !shares.Any(s => s.UserEmail == userId)))
-            {
-                throw new UnauthorizedException();
-            }
-
-            return entry.Content;
         }
     }
 }
