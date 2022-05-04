@@ -93,6 +93,11 @@ namespace NordTaskApi.Functions.Common.Auth
                 var split = authHeader.Split("Bearer ");
                 var token = split.Length != 2 ? throw new ArgumentException("Incorrect Authorization header.", nameof(headers)) : split[1];
 
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    throw new ArgumentException("Incorrect Authorization header.", nameof(headers));
+                }
+
                 return token;
             }
             catch (ArgumentException)
