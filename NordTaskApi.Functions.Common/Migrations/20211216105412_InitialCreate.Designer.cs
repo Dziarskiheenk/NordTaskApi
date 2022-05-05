@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NordTaskApi.Data;
+using NordTaskApi.Common.Data;
 
 #nullable disable
 
-namespace NordTaskApi.Migrations
+namespace NordTaskApi.Common.Migrations
 {
     [DbContext(typeof(NotesContext))]
     [Migration("20211216105412_InitialCreate")]

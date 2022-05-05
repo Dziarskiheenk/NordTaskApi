@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace NordTaskApi.Migrations
+namespace NordTaskApi.Common.Migrations
 {
     public partial class InitialCreate : Migration
     {

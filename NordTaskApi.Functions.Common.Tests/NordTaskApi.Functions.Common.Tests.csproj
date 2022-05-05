@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NordTaskApi.Functions.Common\NordTaskApi.Functions.Common.csproj" />
+    <ProjectReference Include="..\NordTaskApi.Functions.Common\NordTaskApi.Common.csproj" />
   </ItemGroup>
 
 </Project>

@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NordTaskApi.Functions.Common\NordTaskApi.Functions.Common.csproj" />
+    <ProjectReference Include="..\NordTaskApi.Functions.Common\NordTaskApi.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

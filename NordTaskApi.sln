@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Tests", "NordTa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Functions", "NordTaskApi.Functions\NordTaskApi.Functions.csproj", "{6D0C93C7-6D53-44FD-9E3A-DF26C9DD94FD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Functions.Common", "NordTaskApi.Functions.Common\NordTaskApi.Functions.Common.csproj", "{AD7EBF3B-8A83-4F1F-979C-75E582BE4F83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Common", "NordTaskApi.Functions.Common\NordTaskApi.Common.csproj", "{AD7EBF3B-8A83-4F1F-979C-75E582BE4F83}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NordTaskApi.Functions.Common.Tests", "NordTaskApi.Functions.Common.Tests\NordTaskApi.Functions.Common.Tests.csproj", "{C0866434-EFE4-4816-A0D3-64B449EEE242}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Functions.Common.Tests", "NordTaskApi.Functions.Common.Tests\NordTaskApi.Functions.Common.Tests.csproj", "{C0866434-EFE4-4816-A0D3-64B449EEE242}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

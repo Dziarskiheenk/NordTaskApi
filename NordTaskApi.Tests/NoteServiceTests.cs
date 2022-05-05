@@ -1,8 +1,8 @@
 using Moq;
-using NordTaskApi.Exceptions;
-using NordTaskApi.Models;
-using NordTaskApi.Repositories;
-using NordTaskApi.Services;
+using NordTaskApi.Common.Exceptions;
+using NordTaskApi.Common.Models;
+using NordTaskApi.Common.Repositories;
+using NordTaskApi.Common.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;

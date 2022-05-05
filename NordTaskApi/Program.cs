@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using NordTaskApi.Data;
-using NordTaskApi.Repositories;
-using NordTaskApi.Services;
+using NordTaskApi.Common.Data;
+using NordTaskApi.Common.Repositories;
+using NordTaskApi.Common.Services;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 
