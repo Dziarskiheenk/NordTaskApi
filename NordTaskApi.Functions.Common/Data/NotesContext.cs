@@ -8,6 +8,9 @@ namespace NordTaskApi.Common.Data
         public DbSet<Note> Notes { get; set; }
         public DbSet<NoteShare> NoteShares { get; set; }
 
+        public NotesContext() : base()
+        { }
+
         public NotesContext(DbContextOptions<NotesContext> options)
             : base(options)
         { }
@@ -22,6 +25,12 @@ namespace NordTaskApi.Common.Data
             modelBuilder.Entity<Note>().Ignore(n => n.SharedWithEmails);
 
             modelBuilder.Entity<NoteShare>().HasKey(ns => new { ns.NoteId, ns.UserEmail });
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer();
+            base.OnConfiguring(optionsBuilder);
         }
     }
 }
