@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi", "NordTaskApi\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Tests", "NordTaskApi.Tests\NordTaskApi.Tests.csproj", "{25E47A03-E61C-465E-9CE8-ADB621AD7E01}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Functions", "NordTaskApi.Functions.GetNotes\NordTaskApi.Functions.csproj", "{6D0C93C7-6D53-44FD-9E3A-DF26C9DD94FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Functions", "NordTaskApi.Functions\NordTaskApi.Functions.csproj", "{6D0C93C7-6D53-44FD-9E3A-DF26C9DD94FD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NordTaskApi.Functions.Common", "NordTaskApi.Functions.Common\NordTaskApi.Functions.Common.csproj", "{AD7EBF3B-8A83-4F1F-979C-75E582BE4F83}"
 EndProject
