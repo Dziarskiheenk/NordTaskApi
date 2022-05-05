@@ -5,6 +5,7 @@ using NordTaskApi.Common.Data;
 using NordTaskApi.Common.Repositories;
 using NordTaskApi.Common.Services;
 using NordTaskApi.Functions.Common.Auth;
+using System;
 using System.IdentityModel.Tokens.Jwt;
 
 [assembly: FunctionsStartup(typeof(MyNamespace.Startup))]
@@ -22,7 +23,9 @@ namespace MyNamespace
 
             builder.Services.AddDbContext<NotesContext>(options =>
             {
-                options.UseSqlServer(builder.GetContext().Configuration.GetSection("ConnectionStrings:NordTaskApi").Value);
+                var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings:NordTaskApi") ??
+                builder.GetContext().Configuration.GetSection("ConnectionStrings:NordTaskApi").Value;
+                options.UseSqlServer(connectionString);
             });
 
             builder.Services.AddTransient<INotesRepository, NotesRepository>();
