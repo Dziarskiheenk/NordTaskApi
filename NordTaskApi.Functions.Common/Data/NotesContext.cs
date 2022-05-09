@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using NordTaskApi.Common.Models;
 
 namespace NordTaskApi.Common.Data
@@ -31,6 +32,17 @@ namespace NordTaskApi.Common.Data
         {
             optionsBuilder.UseSqlServer();
             base.OnConfiguring(optionsBuilder);
+        }
+    }
+
+    public class NotesContextFactory : IDesignTimeDbContextFactory<NotesContext>
+    {
+        public NotesContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<NotesContext>();
+            optionsBuilder.UseSqlServer(Environment.GetEnvironmentVariable("NordTaskApiDesignConnectionSring"));
+
+            return new NotesContext(optionsBuilder.Options);
         }
     }
 }
