@@ -6,27 +6,28 @@ using Microsoft.Extensions.Logging;
 using NordTaskApi.Common.Exceptions;
 using NordTaskApi.Common.Services;
 using NordTaskApi.Functions.Common.Auth;
-using System.Threading;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NordTaskApi.Functions
 {
-    public class GetNotes
+    public class RemoveNoteShare
     {
         private readonly IAuthService authService;
         private readonly INotesService notesService;
         private readonly IHttpContextAccessor httpContextAccessor;
-
-        public GetNotes(IAuthService authService, INotesService notesService, IHttpContextAccessor httpContextAccessor)
+        public RemoveNoteShare(IAuthService authService, INotesService notesService, IHttpContextAccessor httpContextAccessor)
         {
             this.authService = authService;
             this.notesService = notesService;
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        [FunctionName("GetNotes")]
+        [FunctionName("RemoveNoteShare")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "notes")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "sharedNotes/{noteId}")] HttpRequest req,
+            Guid noteId,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -45,7 +46,15 @@ namespace NordTaskApi.Functions
 
             var userName = httpContextAccessor.HttpContext.User.Identity.Name;
 
-            return new OkObjectResult(await notesService.GetNotes(userName, CancellationToken.None));
+            try
+            {
+                await notesService.DeleteNoteShare(noteId, userName);
+                return new NoContentResult();
+            }
+            catch (KeyNotFoundException)
+            {
+                return new NotFoundResult();
+            }
         }
     }
 }

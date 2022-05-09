@@ -46,9 +46,9 @@ namespace NordTaskApi.Common.Repositories
             return notes;
         }
 
-        public async Task<Note?>GetNote(Guid id)
+        public async Task<Note?> GetNote(Guid id)
         {
-            return await context.Notes.FirstOrDefaultAsync(n=>n.Id == id);
+            return await context.Notes.FirstOrDefaultAsync(n => n.Id == id);
         }
 
         public async Task<IEnumerable<NoteShare>> GetNoteShares(string userId, CancellationToken cancellationToken)
@@ -62,8 +62,9 @@ namespace NordTaskApi.Common.Repositories
 
         public async Task UpdateNote(Note note, string userId)
         {
-            var entry = context.Notes.First(n=>n.Id== note.Id);
+            var entry = context.Notes.Include(e => e.SharedWith).First(n => n.Id == note.Id);
             context.Entry(entry).CurrentValues.SetValues(note);
+            entry.SharedWith = note.SharedWith;
 
             await context.SaveChangesAsync();
         }

@@ -6,27 +6,28 @@ using Microsoft.Extensions.Logging;
 using NordTaskApi.Common.Exceptions;
 using NordTaskApi.Common.Services;
 using NordTaskApi.Functions.Common.Auth;
-using System.Threading;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NordTaskApi.Functions
 {
-    public class GetNotes
+    public class GetProtectedContent
     {
         private readonly IAuthService authService;
         private readonly INotesService notesService;
         private readonly IHttpContextAccessor httpContextAccessor;
-
-        public GetNotes(IAuthService authService, INotesService notesService, IHttpContextAccessor httpContextAccessor)
+        public GetProtectedContent(IAuthService authService, INotesService notesService, IHttpContextAccessor httpContextAccessor)
         {
             this.authService = authService;
             this.notesService = notesService;
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        [FunctionName("GetNotes")]
+        [FunctionName("GetProtectedContent")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "notes")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "notes/{id}/content")] HttpRequest req,
+            Guid id,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -43,9 +44,27 @@ namespace NordTaskApi.Functions
                 return new StatusCodeResult(503);
             }
 
+            var password = req.Query["password"];
+            if (id == Guid.Empty || string.IsNullOrEmpty(password))
+            {
+                return new BadRequestResult();
+            }
+
             var userName = httpContextAccessor.HttpContext.User.Identity.Name;
 
-            return new OkObjectResult(await notesService.GetNotes(userName, CancellationToken.None));
+            try
+            {
+                var content = await notesService.GetProtectedContent(id, password, userName);
+                return new OkObjectResult(content);
+            }
+            catch (KeyNotFoundException)
+            {
+                return new NotFoundResult();
+            }
+            catch (UnauthorizedException)
+            {
+                return new UnauthorizedResult();
+            }
         }
     }
 }

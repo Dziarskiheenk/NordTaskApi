@@ -3,30 +3,34 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using NordTaskApi.Common.Exceptions;
+using NordTaskApi.Common.Models;
 using NordTaskApi.Common.Services;
 using NordTaskApi.Functions.Common.Auth;
-using System.Threading;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace NordTaskApi.Functions
 {
-    public class GetNotes
+    public class UpdateNote
     {
         private readonly IAuthService authService;
         private readonly INotesService notesService;
         private readonly IHttpContextAccessor httpContextAccessor;
-
-        public GetNotes(IAuthService authService, INotesService notesService, IHttpContextAccessor httpContextAccessor)
+        public UpdateNote(IAuthService authService, INotesService notesService, IHttpContextAccessor httpContextAccessor)
         {
             this.authService = authService;
             this.notesService = notesService;
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        [FunctionName("GetNotes")]
+        [FunctionName("UpdateNote")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "notes")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "notes/{noteId}")] HttpRequest req,
+            Guid noteId,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -43,9 +47,27 @@ namespace NordTaskApi.Functions
                 return new StatusCodeResult(503);
             }
 
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            Note note = JsonConvert.DeserializeObject<Note>(requestBody);
+            if (note.Id != noteId)
+            {
+                return new BadRequestResult();
+            }
             var userName = httpContextAccessor.HttpContext.User.Identity.Name;
 
-            return new OkObjectResult(await notesService.GetNotes(userName, CancellationToken.None));
+            try
+            {
+                await notesService.UpdateNote(note, userName);
+                return new NoContentResult();
+            }
+            catch (KeyNotFoundException)
+            {
+                return new NotFoundResult();
+            }
+            catch (UnauthorizedException)
+            {
+                return new UnauthorizedResult();
+            }
         }
     }
 }
