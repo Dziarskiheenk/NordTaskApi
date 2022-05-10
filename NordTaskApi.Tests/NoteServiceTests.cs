@@ -156,21 +156,24 @@ namespace NordTaskApi.Tests
             Assert.Equal(updatedNote.SharedWithEmails, updatedNote.SharedWith.Select(sw => sw.UserEmail));
         }
 
-        [Theory(Skip = "todo - fix test")]
-        [InlineData("")]
-        [InlineData(null)]
-        [InlineData("password")]
-        public async Task UpdateNoteShouldBePasswordProtected(string password)
+        [Theory()]
+        [InlineData("", "")]
+        [InlineData(null, null)]
+        [InlineData("cGFzc3dvcmQ=", "password")]
+        public async Task UpdateNoteShouldBePasswordProtected(string passwordBase64, string passwordDecoded)
         {
             var repoMock = new Mock<INotesRepository>();
             var noteOwner = "personA";
             var updatedNote = new Note
             {
                 OwnedBy = noteOwner,
-                UserPassword = password
+                UserPassword = passwordBase64
             };
             repoMock.Setup(r => r.GetNotes(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-               .Returns(Task.FromResult(new List<Note>() { new Note { OwnedBy = noteOwner, Content = "" } }.AsEnumerable()));
+               .Returns(Task.FromResult(new List<Note>()
+               {
+                   new Note { OwnedBy = noteOwner, Content = "", Password = passwordDecoded } 
+               }.AsEnumerable()));
             repoMock.Setup(r => r.GetNoteShares(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(Enumerable.Empty<NoteShare>()));
             repoMock.Setup(r => r.UpdateNote(It.IsAny<Note>(), It.IsAny<string>())).Returns(Task.CompletedTask);
@@ -178,7 +181,7 @@ namespace NordTaskApi.Tests
             var notesService = new NotesService(repoMock.Object);
             await notesService.UpdateNote(updatedNote, noteOwner);
 
-            Assert.Equal(!string.IsNullOrEmpty(password), updatedNote.IsPasswordProtected);
+            Assert.Equal(!string.IsNullOrEmpty(passwordBase64), updatedNote.IsPasswordProtected);
         }
 
         [Fact]
