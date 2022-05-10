@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NordTaskApi.Exceptions;
-using NordTaskApi.Models;
-using NordTaskApi.Services;
+using NordTaskApi.Common.Exceptions;
+using NordTaskApi.Common.Services;
+using NordTaskApi.Common.Models;
 
 namespace NordTaskApi.Controllers
 {
