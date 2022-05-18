@@ -8,9 +8,9 @@ using NordTaskApi.Functions.Common.Auth;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 
-[assembly: FunctionsStartup(typeof(MyNamespace.Startup))]
+[assembly: FunctionsStartup(typeof(NordTaskApi.Functions.Startup))]
 
-namespace MyNamespace
+namespace NordTaskApi.Functions
 {
     public class Startup : FunctionsStartup
     {
